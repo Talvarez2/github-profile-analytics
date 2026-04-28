@@ -1,58 +1,69 @@
-const COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#56d364','#e3b341','#ff7b72','#a5d6ff'];
+const chartInstances = {};
 
-let charts = {};
-
-function destroy(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-
-function createChart(canvasId, config) {
-  destroy(canvasId);
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return;
-  charts[canvasId] = new Chart(ctx, config);
+function getOrCreate(container, id, title) {
+  let card = container.querySelector(`#${id}`);
+  if (!card) {
+    card = document.createElement('div');
+    card.className = 'card';
+    card.id = id;
+    card.innerHTML = `<h3>${title}</h3><canvas></canvas>`;
+    container.appendChild(card);
+  }
+  const canvas = card.querySelector('canvas');
+  if (chartInstances[id]) chartInstances[id].destroy();
+  return canvas;
 }
 
-export function renderLanguageChart(repos, containerId) {
+export function renderLanguageChart(repos, container, id) {
   const langs = {};
-  repos.forEach(r => { if (r.language) langs[r.language] = (langs[r.language] || 0) + 1; });
+  repos.forEach((r) => r.language && (langs[r.language] = (langs[r.language] || 0) + 1));
   const sorted = Object.entries(langs).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  const id = `lang-chart-${containerId}`;
-  const container = document.getElementById(containerId);
-  container.innerHTML = `<div class="chart-card"><h3>Language Distribution</h3><canvas id="${id}"></canvas></div>`;
-  createChart(id, {
+  const canvas = getOrCreate(container, id, 'Language Distribution');
+  chartInstances[id] = new Chart(canvas, {
     type: 'doughnut',
-    data: { labels: sorted.map(e => e[0]), datasets: [{ data: sorted.map(e => e[1]), backgroundColor: COLORS }] },
-    options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#c9d1d9' } } } }
+    data: {
+      labels: sorted.map((e) => e[0]),
+      datasets: [{ data: sorted.map((e) => e[1]), backgroundColor: palette(sorted.length) }],
+    },
+    options: { plugins: { legend: { position: 'right', labels: { color: '#c9d1d9' } } } },
   });
 }
 
-export function renderStarsChart(repos, containerId) {
-  const top = repos.filter(r => r.stargazers_count > 0).sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 10);
-  if (!top.length) return;
-  const id = `stars-chart-${containerId}`;
-  const container = document.getElementById(containerId);
-  container.innerHTML += `<div class="chart-card"><h3>Top Repos by Stars</h3><canvas id="${id}"></canvas></div>`;
-  createChart(id, {
+export function renderStarsChart(repos, container, id) {
+  const top = repos.filter((r) => r.stargazers_count > 0).sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 10);
+  const canvas = getOrCreate(container, id, 'Top Repos by Stars');
+  chartInstances[id] = new Chart(canvas, {
     type: 'bar',
-    data: { labels: top.map(r => r.name), datasets: [{ label: 'Stars', data: top.map(r => r.stargazers_count), backgroundColor: '#e3b341' }] },
-    options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }, y: { ticks: { color: '#c9d1d9' }, grid: { display: false } } } }
+    data: {
+      labels: top.map((r) => r.name),
+      datasets: [{ label: 'Stars', data: top.map((r) => r.stargazers_count), backgroundColor: '#58a6ff' }],
+    },
+    options: { indexAxis: 'y', scales: axisOpts(), plugins: { legend: { display: false } } },
   });
 }
 
-export function renderTimelineChart(repos, containerId) {
+export function renderTimelineChart(repos, container, id) {
   const byMonth = {};
-  repos.forEach(r => {
-    const d = r.created_at.slice(0, 7);
-    byMonth[d] = (byMonth[d] || 0) + 1;
+  repos.forEach((r) => {
+    const m = r.created_at.slice(0, 7);
+    byMonth[m] = (byMonth[m] || 0) + 1;
   });
-  const sorted = Object.entries(byMonth).sort();
-  const id = `timeline-chart-${containerId}`;
-  const container = document.getElementById(containerId);
-  container.innerHTML += `<div class="chart-card"><h3>Repo Creation Timeline</h3><canvas id="${id}"></canvas></div>`;
-  createChart(id, {
+  const keys = Object.keys(byMonth).sort();
+  let cum = 0;
+  const data = keys.map((k) => ({ x: k, y: (cum += byMonth[k]) }));
+  const canvas = getOrCreate(container, id, 'Repo Creation Timeline');
+  chartInstances[id] = new Chart(canvas, {
     type: 'line',
-    data: { labels: sorted.map(e => e[0]), datasets: [{ label: 'Repos Created', data: sorted.map(e => e[1]), borderColor: '#58a6ff', backgroundColor: 'rgba(88,166,255,0.1)', fill: true, tension: 0.3 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8b949e', maxTicksLimit: 12 }, grid: { color: '#21262d' } }, y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' }, beginAtZero: true } } }
+    data: { datasets: [{ label: 'Total Repos', data, borderColor: '#58a6ff', fill: false }] },
+    options: { scales: { x: { type: 'category', ticks: { color: '#8b949e' } }, y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } } }, plugins: { legend: { display: false } } },
   });
 }
 
-export function destroyAll() { Object.keys(charts).forEach(destroy); }
+function axisOpts() {
+  return { x: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }, y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } } };
+}
+
+function palette(n) {
+  const base = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#79c0ff', '#56d364', '#e3b341', '#ff7b72', '#d2a8ff'];
+  return Array.from({ length: n }, (_, i) => base[i % base.length]);
+}
