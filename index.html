@@ -10,44 +10,16 @@
 <body>
   <header>
     <h1>GitHub Profile Analytics</h1>
-    <div class="search-bar" id="single-search">
-      <input type="text" id="username-input" placeholder="Enter GitHub username" />
-      <button id="search-btn">Analyze</button>
+    <div class="search-bar">
+      <input type="text" id="username" placeholder="Enter GitHub username" />
+      <button id="analyze-btn">Analyze</button>
+      <label class="compare-toggle">
+        <input type="checkbox" id="compare-mode" /> Compare Mode
+      </label>
+      <input type="text" id="username2" placeholder="Second username" class="hidden" />
     </div>
-    <div class="search-bar hidden" id="compare-search">
-      <input type="text" id="compare-input-1" placeholder="User 1" />
-      <input type="text" id="compare-input-2" placeholder="User 2" />
-      <button id="compare-btn">Compare</button>
-    </div>
-    <button class="compare-toggle" id="toggle-mode">Compare Mode</button>
   </header>
-  <main>
-    <div id="single-view">
-      <div id="loading" class="hidden">Loading...</div>
-      <div id="error" class="hidden"></div>
-      <div id="dashboard" class="hidden">
-        <section id="user-card"></section>
-        <section id="repo-charts" class="chart-grid"></section>
-        <section id="activity-section"></section>
-      </div>
-    </div>
-    <div id="compare-view" class="hidden">
-      <div id="compare-loading" class="hidden">Loading...</div>
-      <div id="compare-error" class="hidden"></div>
-      <div class="compare-container hidden" id="compare-panels">
-        <div class="compare-panel" id="panel-1">
-          <section id="user-card-1" class="compare-user-card"></section>
-          <section id="repo-charts-1" class="chart-grid"></section>
-          <section id="activity-section-1"></section>
-        </div>
-        <div class="compare-panel" id="panel-2">
-          <section id="user-card-2" class="compare-user-card"></section>
-          <section id="repo-charts-2" class="chart-grid"></section>
-          <section id="activity-section-2"></section>
-        </div>
-      </div>
-    </div>
-  </main>
+  <main id="dashboard" class="dashboard"></main>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
