@@ -1,5 +1,6 @@
 import { fetchUser, fetchRepos, fetchEvents } from './api.js';
 import { renderLanguageChart, renderStarsChart, renderTimelineChart } from './charts.js';
+import { renderHeatmap, renderActiveDays, renderActiveHours, renderEventBreakdown } from './activity.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -62,6 +63,10 @@ function renderUser({ user, repos, events }, container) {
   renderLanguageChart(repos, grid, `lang-${user.login}`);
   renderStarsChart(repos, grid, `stars-${user.login}`);
   renderTimelineChart(repos, grid, `timeline-${user.login}`);
+  renderHeatmap(events, container);
+  renderActiveDays(events, grid, `days-${user.login}`);
+  renderActiveHours(events, grid, `hours-${user.login}`);
+  renderEventBreakdown(events, grid, `events-${user.login}`);
 }
 
 export { loadUser, renderUser };
