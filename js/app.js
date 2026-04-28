@@ -1,4 +1,5 @@
 import { fetchUser, fetchRepos, fetchEvents } from './api.js';
+import { renderLanguageChart, renderStarsChart, renderTimelineChart } from './charts.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -57,4 +58,9 @@ function renderUser({ user, repos, events }, container) {
       </div>
     </div>
     <div class="chart-grid" id="charts-${user.login}"></div>`;
+
+  const grid = container.querySelector(`#charts-${user.login}`);
+  renderLanguageChart(grid, repos);
+  renderStarsChart(grid, repos);
+  renderTimelineChart(grid, repos);
 }
