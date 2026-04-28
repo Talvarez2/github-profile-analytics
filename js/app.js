@@ -6,8 +6,11 @@ const $ = (s) => document.querySelector(s);
 
 $('#analyze-btn').addEventListener('click', run);
 $('#username').addEventListener('keydown', (e) => e.key === 'Enter' && run());
+$('#username2').addEventListener('keydown', (e) => e.key === 'Enter' && run());
 $('#compare-mode').addEventListener('change', (e) => {
-  $('#username2').classList.toggle('hidden', !e.target.checked);
+  const on = e.target.checked;
+  $('#username2').classList.toggle('hidden', !on);
+  if (on) $('#username2').focus();
 });
 
 async function run() {
