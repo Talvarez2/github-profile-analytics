@@ -1,5 +1,4 @@
 const BASE = 'https://api.github.com';
-const CACHE_TTL = 5 * 60 * 1000;
 
 export async function fetchUser(username) {
   return cachedFetch(`${BASE}/users/${username}`);
@@ -30,10 +29,10 @@ async function cachedFetch(url) {
   const cached = sessionStorage.getItem(key);
   if (cached) {
     const { data, ts } = JSON.parse(cached);
-    if (Date.now() - ts < CACHE_TTL) return data;
+    if (Date.now() - ts < 5 * 60 * 1000) return data;
   }
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
   const data = await res.json();
   try { sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
   return data;
