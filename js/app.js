@@ -1,10 +1,10 @@
 import { fetchUser, fetchRepos, fetchEvents } from './api.js';
 
-const $ = s => document.querySelector(s);
+const $ = (s) => document.querySelector(s);
 
 $('#analyze-btn').addEventListener('click', run);
-$('#username').addEventListener('keydown', e => e.key === 'Enter' && run());
-$('#compare-mode').addEventListener('change', e => {
+$('#username').addEventListener('keydown', (e) => e.key === 'Enter' && run());
+$('#compare-mode').addEventListener('change', (e) => {
   $('#username2').classList.toggle('hidden', !e.target.checked);
 });
 
@@ -35,28 +35,26 @@ async function run() {
 
 async function loadUser(username) {
   const [user, repos, events] = await Promise.all([
-    fetchUser(username), fetchRepos(username), fetchEvents(username)
+    fetchUser(username),
+    fetchRepos(username),
+    fetchEvents(username),
   ]);
   return { user, repos, events };
 }
 
 function renderUser({ user, repos, events }, container) {
   container.innerHTML = `
-    <div class="user-card">
+    <div class="card user-card">
       <img src="${user.avatar_url}" alt="${user.login}" />
-      <div class="info">
+      <div>
         <h2>${user.name || user.login}</h2>
-        <div class="bio">${user.bio || ''}</div>
+        <p class="bio">${user.bio || ''}</p>
         <div class="stats">
-          <div class="stat"><span class="num">${user.followers}</span><span class="label">Followers</span></div>
-          <div class="stat"><span class="num">${user.following}</span><span class="label">Following</span></div>
-          <div class="stat"><span class="num">${user.public_repos}</span><span class="label">Repos</span></div>
+          <span><strong>${user.public_repos}</strong> repos</span>
+          <span><strong>${user.followers}</strong> followers</span>
+          <span><strong>${user.following}</strong> following</span>
         </div>
       </div>
     </div>
     <div class="chart-grid" id="charts-${user.login}"></div>`;
-
-  // Charts and activity will be added in subsequent steps
-  import('./charts.js').then(m => m.renderCharts(repos, `charts-${user.login}`)).catch(() => {});
-  import('./activity.js').then(m => m.renderActivity(events, `charts-${user.login}`)).catch(() => {});
 }
