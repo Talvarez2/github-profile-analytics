@@ -1,5 +1,6 @@
 import { fetchUser, fetchRepos, fetchEvents } from './api.js';
 import { renderLanguageChart, renderStarsChart, renderTimelineChart, destroyAll } from './charts.js';
+import { renderHeatmap, renderActivityCharts } from './activity.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -50,6 +51,10 @@ async function analyze(username) {
     $('#dashboard').classList.remove('hidden');
     renderUserCard(user, $('#user-card'));
     renderRepoCharts(repos);
+    const actSection = $('#activity-section');
+    actSection.innerHTML = '';
+    renderHeatmap(events, actSection);
+    renderActivityCharts(events, actSection);
     return { user, repos, events };
   } catch (e) {
     showError(e.message);
