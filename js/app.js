@@ -1,4 +1,5 @@
 import { fetchUser, fetchRepos, fetchEvents } from './api.js';
+import { renderLanguageChart, renderStarsChart, renderTimelineChart, destroyAll } from './charts.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -16,6 +17,15 @@ function renderUserCard(user, container) {
     </div>`;
 }
 
+function renderRepoCharts(repos) {
+  const container = $('#repo-charts');
+  container.innerHTML = '';
+  container.id = 'repo-charts';
+  renderLanguageChart(repos, 'repo-charts');
+  renderStarsChart(repos, 'repo-charts');
+  renderTimelineChart(repos, 'repo-charts');
+}
+
 function showLoading(on) {
   $('#loading').classList.toggle('hidden', !on);
   $('#dashboard').classList.toggle('hidden', on);
@@ -31,6 +41,7 @@ function showError(msg) {
 
 async function analyze(username) {
   showLoading(true);
+  destroyAll();
   try {
     const [user, repos, events] = await Promise.all([
       fetchUser(username), fetchRepos(username), fetchEvents(username)
@@ -38,6 +49,7 @@ async function analyze(username) {
     showLoading(false);
     $('#dashboard').classList.remove('hidden');
     renderUserCard(user, $('#user-card'));
+    renderRepoCharts(repos);
     return { user, repos, events };
   } catch (e) {
     showError(e.message);
