@@ -124,14 +124,28 @@ main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
 .heatmap-cell[data-level="4"] { background: #39d353; }
 
 /* Loading & Error */
-#loading {
+#loading, #compare-loading {
   text-align: center;
   padding: 3rem;
   font-size: 1.1rem;
   color: #8b949e;
 }
 
-#error {
+#loading::before, #compare-loading::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 1rem;
+  border: 3px solid #30363d;
+  border-top-color: #58a6ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#error, #compare-error {
   text-align: center;
   padding: 2rem;
   color: #f85149;
